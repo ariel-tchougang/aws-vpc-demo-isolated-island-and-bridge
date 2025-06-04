@@ -59,7 +59,7 @@ This advanced demo illustrates a complete network architecture using **Amazon VP
 
 ```bash
 aws cloudformation deploy \
-  --template-file vpc_connectivity_demo_cfn.yaml \
+  --template-file networking-demo.yaml \
   --stack-name vpc-connectivity-demo \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides VpcCidr=10.0.0.0/16 PingCidr=203.0.113.42/32 Environment=demo 
