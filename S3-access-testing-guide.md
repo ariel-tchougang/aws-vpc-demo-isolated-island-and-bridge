@@ -57,13 +57,14 @@ aws s3 ls
 Run the following command on each instance:
 
 ```bash
-aws s3 ls
+aws s3 ls --debug
 ```
 
 **Expected Results**:
 - Public Instance: Success (via Internet Gateway)
 - Private Instance with NAT: Success (via NAT Gateway)
 - Isolated Private Instance: Failure (no internet access)
+   + Timeout on `MainThread - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): s3.<AWS-REGION>.amazonaws.com:443`
 
 ## 5. Create Test S3 Buckets
 
@@ -101,16 +102,18 @@ Run the following command on the public and private-with-NAT instances:
 
 ```bash
 # For same-region bucket
-aws s3api get-object --bucket vpc-demo-[your-account-id]-[current-region] --key [filename] /tmp/downloaded-file-1
+aws s3api get-object --bucket vpc-demo-[your-account-id]-[current-region] --key [filename] /tmp/downloaded-file-1 --debug
 
 # For different-region bucket
-aws s3api get-object --bucket vpc-demo-[your-account-id]-[different-region] --key [filename] /tmp/downloaded-file-2
+aws s3api get-object --bucket vpc-demo-[your-account-id]-[different-region] --key [filename] /tmp/downloaded-file-2 --debug
 ```
 
 **Expected Results**:
 - Public Instance: Success for both buckets
 - Private Instance with NAT: Success for both buckets
 - Isolated Private Instance: Failure for both buckets (no internet access)
+   + Timeout on `MainThread - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): vpc-demo-[your-account-id]-[current-region].s3.[current-region].amazonaws.com:443`
+   + Timeout on `MainThread - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): vpc-demo-[your-account-id]-[different-region].s3.[different-region].amazonaws.com:443`
 
 ## 8. Understanding NAT Gateway Limitations for S3 Access
 
@@ -166,10 +169,10 @@ Run the following commands on all instances:
 
 ```bash
 # For same-region bucket
-aws s3api get-object --bucket vpc-demo-[your-account-id]-[current-region] --key [filename] /tmp/downloaded-file-1
+aws s3api get-object --bucket vpc-demo-[your-account-id]-[current-region] --key [filename] /tmp/downloaded-file-1 --debug
 
 # For different-region bucket
-aws s3api get-object --bucket vpc-demo-[your-account-id]-[different-region] --key [filename] /tmp/downloaded-file-2
+aws s3api get-object --bucket vpc-demo-[your-account-id]-[different-region] --key [filename] /tmp/downloaded-file-2 --debug
 ```
 
 **Expected Results**:
@@ -179,7 +182,7 @@ aws s3api get-object --bucket vpc-demo-[your-account-id]-[different-region] --ke
   - Success for different-region bucket (via NAT Gateway)
 - Isolated Private Instance:
   - Success for same-region bucket (via S3 Gateway Endpoint)
-  - Failure for different-region bucket (no internet access)
+  - Failure for different-region bucket (no internet access): Timeout on `MainThread - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): s3.[different-region].amazonaws.com:443`
 
 ## 12. Conclusion
 
