@@ -30,6 +30,8 @@ This advanced demo illustrates a complete network architecture using **Amazon VP
 * 1 route table for **Private Subnet 2** with no outbound Internet access (the isolated island)
 * 1 EC2 Instance in the Public subnet
 * 1 EC2 Instance in each private subnet
+* 1 S3ReadAccessRole for EC2
+* 1 S3ReadAccess Instance Profile
 
 ![Architecture](resources/architecture-diagram.png)
 
@@ -39,7 +41,6 @@ This advanced demo illustrates a complete network architecture using **Amazon VP
 
 1. Create the VPC, subnets, NAT Gateway, and Internet Gateway
 2. Define **three** route tables:
-
    * One for the public subnet with a route to the Internet Gateway
    * One for private subnet 1 **with no Internet route**
    * One for private subnet 2 **with a default route via the NAT Gateway**
@@ -52,7 +53,7 @@ This advanced demo illustrates a complete network architecture using **Amazon VP
 7. Launch 3 EC2 instances (Amazon Linux 2023, t3.micro)
 8. Create the EC2 Instance Connect Endpoint in **Private Subnet 2**
 9. Attach the appropriate security groups to EC2 instances and the EIC
-
+10. Create an IAM Role with S3ReadAccessOnly permission, and EC2 service as trusted entity
 ---
 
 ## ⚙️ Deploy via CloudFormation
@@ -78,14 +79,13 @@ terraform apply \
 
 ---
 
-## 🧪 Scenarios to Test
+## 🧪 Testing scenarios
 
-Tests:  
-   * Connect to each EC2 instance using EC2 Instance Connect 
-   * ping between EC2 instances (expected to succeed)
-   * `ping` www.amazon.com from Public Instance to Internet (expected to succeed)
-   * `ping` www.amazon.com from Private Instance 1 to Internet (expected to succeed)
-   * `ping` www.amazon.com  from Private Instance 2 to Internet (expected to fail)
+### Internet Access
+👉 Check [step-by-step Internet access testing guide](./Internet-access-testing-guide.md)
+
+### S3 Access
+👉 Check [step-by-step S3 access testing guide](./S3-access-testing-guide.md)
 
 ---
 

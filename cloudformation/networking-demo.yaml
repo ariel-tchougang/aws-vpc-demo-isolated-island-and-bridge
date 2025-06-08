@@ -29,6 +29,32 @@ Parameters:
     Description: EC2 instance type
 
 Resources:
+  S3ReadAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      RoleName: !Sub "${AWS::StackName}-S3ReadAccessRole"
+      Tags:
+        - Key: Name
+          Value: s3-read-access-role
+        - Key: Environment
+          Value: !Ref Environment
+          
+  S3ReadAccessInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-S3ReadAccessProfile"
+      Roles:
+        - !Ref S3ReadAccessRole
+          
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -276,6 +302,7 @@ Resources:
       ImageId: !Ref LatestAmiId
       KeyName: !Ref EC2KeyPair
       SubnetId: !Ref PublicSubnet
+      # IamInstanceProfile: !Ref S3ReadAccessInstanceProfile
       SecurityGroupIds:
         - !Ref SGICMP
         - !Ref SGSSHEC2
@@ -296,6 +323,7 @@ Resources:
       ImageId: !Ref LatestAmiId
       KeyName: !Ref EC2KeyPair
       SubnetId: !Ref PrivateSubnet1
+      # IamInstanceProfile: !Ref S3ReadAccessInstanceProfile
       SecurityGroupIds:
         - !Ref SGICMP
         - !Ref SGSSHEC2
@@ -316,6 +344,7 @@ Resources:
       ImageId: !Ref LatestAmiId
       KeyName: !Ref EC2KeyPair
       SubnetId: !Ref PrivateSubnet2
+      # IamInstanceProfile: !Ref S3ReadAccessInstanceProfile
       SecurityGroupIds:
         - !Ref SGICMP
         - !Ref SGSSHEC2
@@ -330,6 +359,10 @@ Resources:
           echo "Isolated private instance with no internet access" > /home/ec2-user/instance-info.txt
 
 Outputs:
+  S3ReadAccessRoleArn:
+    Description: S3 Read Access Role ARN
+    Value: !GetAtt S3ReadAccessRole.Arn
+    
   VpcId:
     Description: VPC ID
     Value: !Ref VPC

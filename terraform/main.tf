@@ -2,6 +2,35 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+resource "aws_iam_role" "s3_read_access" {
+  name = "${var.environment}-S3ReadAccessRole"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+  
+  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
+  
+  tags = {
+    Name = "s3-read-access-role"
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_instance_profile" "s3_read_access" {
+  name = "${var.environment}-S3ReadAccessProfile"
+  role = aws_iam_role.s3_read_access.name
+}
+
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -236,6 +265,7 @@ resource "aws_instance" "public_instance" {
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.icmp.id, aws_security_group.ssh_ec2.id]
   key_name               = aws_key_pair.generated_key.key_name
+  # iam_instance_profile   = aws_iam_instance_profile.s3_read_access.name
   depends_on             = [ 
                             aws_subnet.public, 
                             aws_key_pair.generated_key, 
@@ -260,6 +290,7 @@ resource "aws_instance" "private_instance_with_nat" {
   subnet_id              = aws_subnet.private_bridge.id
   vpc_security_group_ids = [aws_security_group.icmp.id, aws_security_group.ssh_ec2.id]
   key_name               = aws_key_pair.generated_key.key_name
+  # iam_instance_profile   = aws_iam_instance_profile.s3_read_access.name
   depends_on             = [ 
                             aws_subnet.private_bridge, 
                             aws_key_pair.generated_key, 
@@ -284,6 +315,7 @@ resource "aws_instance" "isolated_private_instance" {
   subnet_id              = aws_subnet.private_isolated.id
   vpc_security_group_ids = [aws_security_group.icmp.id, aws_security_group.ssh_ec2.id]
   key_name               = aws_key_pair.generated_key.key_name
+  # iam_instance_profile   = aws_iam_instance_profile.s3_read_access.name
   depends_on             = [ 
                             aws_subnet.private_isolated, 
                             aws_key_pair.generated_key, 

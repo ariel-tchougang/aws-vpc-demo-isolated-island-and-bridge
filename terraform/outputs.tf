@@ -1,3 +1,8 @@
+output "s3_read_access_role_arn" {
+  value       = aws_iam_role.s3_read_access.arn
+  description = "S3 Read Access Role ARN"
+}
+
 output "vpc_id" {
   value       = aws_vpc.main.id
   description = "VPC ID"
