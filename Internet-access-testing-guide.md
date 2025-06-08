@@ -76,6 +76,11 @@ This guide provides step-by-step instructions for testing the network connectivi
    nslookup www.amazon.com  # Should return IP addresses
    ```
 
+3. **Test Public Instance IP Access**:
+   ```bash
+   ping -c 4 PUBLIC_EXTERNAL_IP  # Should fail due to security group rules
+   ```
+
 ### 4. Test Internet Access from Private Instance with NAT
 
 1. **From Private Instance with NAT terminal**:
@@ -104,9 +109,8 @@ This guide provides step-by-step instructions for testing the network connectivi
 
 2. **Verify DNS Resolution**:
    ```bash
-   nslookup www.amazon.com  # Should fail - no internet access
+   nslookup www.amazon.com  # Should succeed - DNS has a private ip address reserved in the subnet CICR
    ```
-
 
 3. **Test Public Instance IP Access**:
    ```bash
